@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>뱀파이어 서바이벌</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="game-container">
+    <div id="ui-overlay">
+      <div id="top-bar">
+        <div id="timer">
+          <span id="timer-label">생존 시간</span>
+          <span id="timer-value">0:00</span>
+        </div>
+        <div id="level-display">Lv.<span id="level-num">1</span></div>
+        <div id="health-bar-wrap">
+          <div id="health-bar"><div id="health-fill"></div></div>
+          <span id="health-text">100 / 100</span>
+        </div>
+        <div id="xp-bar-wrap">
+          <span id="xp-label">경험치</span>
+          <div id="xp-bar"><div id="xp-fill"></div></div>
+        </div>
+      </div>
+      <div id="weapon-slots"></div>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+
+    <div id="start-screen">
+      <h1>뱀파이어 서바이벌</h1>
+      <p>WASD로 이동 · 5분 생존이 목표!</p>
+      <button id="start-btn">게임 시작</button>
+    </div>
+
+    <div id="level-up-modal" class="hidden">
+      <h2>레벨 업!</h2>
+      <p>업그레이드를 선택하세요</p>
+      <div id="level-up-choices"></div>
+    </div>
+
+    <div id="game-over-modal" class="hidden">
+      <h2>게임 오버</h2>
+      <p id="final-time">생존 시간: 0:00</p>
+      <button id="restart-btn">다시 하기</button>
+    </div>
+
+    <div id="victory-modal" class="hidden">
+      <h2>승리!</h2>
+      <p>5분 생존에 성공했습니다!</p>
+      <button id="victory-restart-btn">다시 하기</button>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
