@@ -34,7 +34,7 @@
 
   const WEAPON_DEFS = {
     wand: { id: 'wand', name: '마법봉', icon: '✨', desc: '가장 가까운 적 유도 탄환', cooldown: 1.3, damage: 1.5, speed: 280 },
-    garlic: { id: 'garlic', name: '마늘', icon: '🧄', desc: '주변 적 지속 데미지', cooldown: 0, damage: 1, radius: 50, tick: 0.5 },
+    garlic: { id: 'garlic', name: '마늘', icon: '🧄', desc: '주변 적 지속 데미지', cooldown: 0, damage: 4, radius: 50, tick: 0.4 },
     bible: { id: 'bible', name: '성경', icon: '📖', desc: '회전하는 성스러운 오브', cooldown: 0, damage: 1.5, radius: 60, speed: 2 },
     axe: { id: 'axe', name: '도끼', icon: '🪓', desc: '부메랑 도끼', cooldown: 1.8, damage: 3, range: 200 },
     fireball: { id: 'fireball', name: '화염구', icon: '🔥', desc: '적 관통 화염', cooldown: 1.6, damage: 2.5, speed: 240 },
