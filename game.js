@@ -4,8 +4,9 @@
   const canvas = document.getElementById('game-canvas');
   const ctx = canvas.getContext('2d');
 
-  const TARGET_TIME = 5 * 60;
   const WORLD_SIZE = 4000;
+  const WALL_THICKNESS = 80;
+  const HALF = WORLD_SIZE / 2;
   const TILE = 32;
   const MAGNET_RADIUS = 120;
   const PLAYER_SPEED = 180;
@@ -51,6 +52,13 @@
     if (lv >= 8) return 3;
     if (lv >= 5) return 2;
     return 1;
+  }
+  function wandFireballProjectileCount(lv) {
+    let n = 1;
+    if (lv >= 3) n++;
+    if (lv >= 5) n++;
+    if (lv >= 8) n++;
+    return n;
   }
 
   const UPGRADE_DEFS = {
@@ -202,27 +210,42 @@
     return nearest;
   }
 
+  function getKNearestEnemies(x, y, k, maxDist = 9999) {
+    const list = [];
+    for (const e of enemies) {
+      const dx = e.x - x, dy = e.y - y;
+      const d = Math.hypot(dx, dy);
+      if (d <= maxDist) list.push({ e, dx, dy, d });
+    }
+    list.sort((a, b) => a.d - b.d);
+    return list.slice(0, k);
+  }
+
   function fireWand() {
     const w = weapons.find(w => w.id === 'wand');
     const cd = (w.cooldown || 1) * weaponCooldownMult(w.level);
     if (!w || gameTime - w.lastFire < cd) return;
-    const near = getNearestEnemy(player.x, player.y, 400);
-    if (!near) return;
+    const count = wandFireballProjectileCount(w.level);
+    const targets = getKNearestEnemies(player.x, player.y, count, 400);
+    if (!targets.length) return;
     w.lastFire = gameTime;
     const spd = (w.speed || 280) * (1 + 0.02 * (w.level - 1));
-    const nx = near.dx / near.d;
-    const ny = near.dy / near.d;
     const dmg = (w.damage || 4) * weaponLevelMult(w.level);
-    projectiles.push({
-      type: 'wand',
-      x: player.x,
-      y: player.y,
-      vx: nx * spd,
-      vy: ny * spd,
-      damage: dmg,
-      radius: 8,
-      homing: true,
-    });
+    for (let i = 0; i < count; i++) {
+      const t = targets[i] || targets[0];
+      const nx = t.dx / t.d;
+      const ny = t.dy / t.d;
+      projectiles.push({
+        type: 'wand',
+        x: player.x,
+        y: player.y,
+        vx: nx * spd,
+        vy: ny * spd,
+        damage: dmg,
+        radius: 8,
+        homing: true,
+      });
+    }
   }
 
   function fireAxe() {
@@ -256,29 +279,36 @@
     const w = weapons.find(w => w.id === 'fireball');
     const cd = (w?.cooldown ?? 1.4) * weaponCooldownMult(w?.level ?? 1);
     if (!w || gameTime - w.lastFire < cd) return;
-    const near = getNearestEnemy(player.x, player.y, 500);
-    let nx = player.facing.x || 1, ny = player.facing.y || 0;
-    if (near) {
-      nx = near.dx / near.d;
-      ny = near.dy / near.d;
+    const count = wandFireballProjectileCount(w.level);
+    const targets = getKNearestEnemies(player.x, player.y, count, 500);
+    let dirs = [];
+    if (targets.length) {
+      for (let i = 0; i < count; i++) {
+        const t = targets[i] || targets[0];
+        dirs.push({ nx: t.dx / t.d, ny: t.dy / t.d });
+      }
     } else {
-      const m = Math.hypot(nx, ny) || 1;
-      nx /= m;
-      ny /= m;
+      let fx = player.facing.x || 1, fy = player.facing.y || 0;
+      const m = Math.hypot(fx, fy) || 1;
+      fx /= m;
+      fy /= m;
+      for (let i = 0; i < count; i++) dirs.push({ nx: fx, ny: fy });
     }
     w.lastFire = gameTime;
     const spd = (w.speed || 240) * (1 + 0.02 * (w.level - 1));
     const dmg = (w.damage || 6) * weaponLevelMult(w.level);
-    projectiles.push({
-      type: 'fireball',
-      x: player.x,
-      y: player.y,
-      vx: nx * spd,
-      vy: ny * spd,
-      damage: dmg,
-      radius: 16,
-      pierce: true,
-    });
+    for (const d of dirs) {
+      projectiles.push({
+        type: 'fireball',
+        x: player.x,
+        y: player.y,
+        vx: d.nx * spd,
+        vy: d.ny * spd,
+        damage: dmg,
+        radius: 6 + (w.level - 1) * 1.2,
+        pierce: true,
+      });
+    }
   }
 
   function updateGarlic(dt) {
@@ -410,12 +440,17 @@
 
     if (gameTime - lastSpawn > spawnInterval) {
       lastSpawn = gameTime;
-      const num = 1 + Math.floor(gameTime / 40);
+      let num;
+      if (level <= 2) num = 3 + Math.floor(gameTime / 25);
+      else num = 1 + Math.floor(gameTime / 40);
       for (let i = 0; i < num; i++) spawnEnemy();
     }
-    spawnInterval = Math.max(0.6, 2.5 - gameTime * 0.008);
+    let interval;
+    if (level <= 2) interval = 1.0;
+    else interval = Math.max(0.6, 2.5 - gameTime * 0.008);
+    spawnInterval = interval;
 
-    const speedMult = (1 + gameTime * 0.004) * 1.3;
+    const speedMult = (1 + gameTime * 0.004) * 1.5;
     for (const e of enemies) {
       const dx = player.x - e.x, dy = player.y - e.y;
       const d = Math.hypot(dx, dy) || 1;
@@ -516,10 +551,6 @@
       const s = Math.floor(gameTime % 60);
       document.getElementById('final-time').textContent = `생존 시간: ${m}:${s.toString().padStart(2, '0')}`;
     }
-    if (gameTime >= TARGET_TIME) {
-      gameState = 'victory';
-      document.getElementById('victory-modal').classList.remove('hidden');
-    }
   }
 
   function worldToScreen(x, y) {
@@ -560,6 +591,15 @@
       ctx.lineTo(cw, gy + sy);
       ctx.stroke();
     }
+
+    ctx.fillStyle = '#1e1825';
+    ctx.fillRect(-HALF - WALL_THICKNESS + sx, -HALF - WALL_THICKNESS + sy, WORLD_SIZE + WALL_THICKNESS * 2, WALL_THICKNESS);
+    ctx.fillRect(-HALF - WALL_THICKNESS + sx, HALF + sy, WORLD_SIZE + WALL_THICKNESS * 2, WALL_THICKNESS);
+    ctx.fillRect(-HALF - WALL_THICKNESS + sx, -HALF + sy, WALL_THICKNESS, WORLD_SIZE);
+    ctx.fillRect(HALF + sx, -HALF + sy, WALL_THICKNESS, WORLD_SIZE);
+    ctx.strokeStyle = '#8b1538';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(-HALF + sx, -HALF + sy, WORLD_SIZE, WORLD_SIZE);
 
     for (const g of xpGems) {
       const px = g.x + sx;
@@ -671,13 +711,10 @@
         const a = base + (i / count) * Math.PI * 2;
         const ox = px + Math.cos(a) * r;
         const oy = py + Math.sin(a) * r;
-        ctx.fillStyle = '#e8dcc8';
-        ctx.beginPath();
-        ctx.arc(ox, oy, 14, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#c9a227';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        ctx.font = '24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('📖', ox, oy);
       }
     }
 
@@ -725,7 +762,6 @@
   function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('game-over-modal').classList.add('hidden');
-    document.getElementById('victory-modal').classList.add('hidden');
     document.getElementById('level-up-modal').classList.add('hidden');
     document.getElementById('pause-overlay').classList.add('hidden');
     gameState = 'play';
@@ -748,11 +784,9 @@
 
   document.getElementById('start-btn').addEventListener('click', startGame);
   document.getElementById('restart-btn').addEventListener('click', startGame);
-  document.getElementById('victory-restart-btn').addEventListener('click', startGame);
-
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
-    if (e.code === 'KeyR' && (gameState === 'gameover' || gameState === 'victory')) startGame();
+    if (e.code === 'KeyR' && gameState === 'gameover') startGame();
     if (e.repeat) return;
     if ((e.code === 'KeyP' || e.code === 'Escape') && gameState === 'play') {
       gameState = 'paused';
