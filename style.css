@@ -229,7 +229,13 @@ body {
 }
 
 #level-up-modal h2 { margin-bottom: 4px; }
-#level-up-modal > p { margin-bottom: 16px; }
+#level-up-modal > p { margin-bottom: 6px; }
+#level-up-modal .key-hint {
+  color: var(--accent-gold);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
 
 #level-up-choices {
   display: flex;
