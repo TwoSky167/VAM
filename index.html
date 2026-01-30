@@ -34,7 +34,7 @@
 
     <div id="start-screen">
       <h1>뱀파이어 서바이벌</h1>
-      <p>WASD로 이동 · 5분 생존이 목표!</p>
+      <p>WASD로 이동 · P 또는 ESC 일시정지 · 5분 생존이 목표!</p>
       <button id="start-btn">게임 시작</button>
     </div>
 
@@ -54,6 +54,11 @@
       <h2>승리!</h2>
       <p>5분 생존에 성공했습니다!</p>
       <button id="victory-restart-btn">다시 하기</button>
+    </div>
+
+    <div id="pause-overlay" class="hidden">
+      <h2>일시정지</h2>
+      <p>P 또는 ESC로 재개</p>
     </div>
   </div>
   <script src="game.js"></script>

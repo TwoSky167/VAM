@@ -175,7 +175,8 @@ body {
 #start-screen,
 #level-up-modal,
 #game-over-modal,
-#victory-modal {
+#victory-modal,
+#pause-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -192,7 +193,8 @@ body {
 #start-screen h1,
 #level-up-modal h2,
 #game-over-modal h2,
-#victory-modal h2 {
+#victory-modal h2,
+#pause-overlay h2 {
   font-family: 'Cinzel', serif;
   font-size: clamp(28px, 5vw, 42px);
   color: var(--accent-gold);
@@ -203,7 +205,8 @@ body {
 #start-screen p,
 #level-up-modal p,
 #game-over-modal p,
-#victory-modal p {
+#victory-modal p,
+#pause-overlay p {
   color: var(--text-dim);
   margin-bottom: 24px;
   font-size: 14px;

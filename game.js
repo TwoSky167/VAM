@@ -317,7 +317,9 @@
   function levelUp() {
     level++;
     xp = 0;
-    if (level === 2) xpToLevel = 22;
+    if (level === 2) xpToLevel = 18;
+    else if (level === 3) xpToLevel = 24;
+    else if (level === 4) xpToLevel = 30;
     else xpToLevel = Math.floor(28 + (level - 1) * 6 + Math.pow(level, 1.35));
     const pool = [];
     const weaponIds = Object.keys(WEAPON_DEFS);
@@ -535,7 +537,7 @@
     ctx.fillStyle = '#0f0c12';
     ctx.fillRect(0, 0, cw, ch);
 
-    if (gameState !== 'play' && gameState !== 'levelup') return;
+    if (gameState !== 'play' && gameState !== 'levelup' && gameState !== 'paused') return;
     if (!player) return;
 
     const sx = cw / 2 - camera.x;
@@ -725,11 +727,12 @@
     document.getElementById('game-over-modal').classList.add('hidden');
     document.getElementById('victory-modal').classList.add('hidden');
     document.getElementById('level-up-modal').classList.add('hidden');
+    document.getElementById('pause-overlay').classList.add('hidden');
     gameState = 'play';
     gameTime = 0;
     level = 1;
     xp = 0;
-    xpToLevel = 12;
+    xpToLevel = 10;
     enemies = [];
     projectiles = [];
     xpGems = [];
@@ -750,6 +753,14 @@
   document.addEventListener('keydown', e => {
     keys[e.code] = true;
     if (e.code === 'KeyR' && (gameState === 'gameover' || gameState === 'victory')) startGame();
+    if (e.repeat) return;
+    if ((e.code === 'KeyP' || e.code === 'Escape') && gameState === 'play') {
+      gameState = 'paused';
+      document.getElementById('pause-overlay').classList.remove('hidden');
+    } else if ((e.code === 'KeyP' || e.code === 'Escape') && gameState === 'paused') {
+      gameState = 'play';
+      document.getElementById('pause-overlay').classList.add('hidden');
+    }
   });
   document.addEventListener('keyup', e => { keys[e.code] = false; });
 
