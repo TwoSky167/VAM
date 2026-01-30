@@ -450,7 +450,7 @@
     else interval = Math.max(0.6, 2.5 - gameTime * 0.008);
     spawnInterval = interval;
 
-    const speedMult = (1 + gameTime * 0.004) * 1.5;
+    const speedMult = (1 + gameTime * 0.004) * 1.5 * (level >= 10 ? 2 : 1);
     for (const e of enemies) {
       const dx = player.x - e.x, dy = player.y - e.y;
       const d = Math.hypot(dx, dy) || 1;
