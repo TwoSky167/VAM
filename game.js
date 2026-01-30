@@ -168,6 +168,8 @@
     });
   }
 
+  const GEM_LIFETIME = 60;
+
   function spawnXp(x, y, amount) {
     for (let i = 0; i < amount; i++) {
       const offset = (i - amount / 2) * 8;
@@ -178,6 +180,7 @@
         vy: 0,
         value: 1,
         radius: 6,
+        spawnTime: gameTime,
       });
     }
   }
@@ -443,6 +446,7 @@
       let num;
       if (level <= 2) num = 3 + Math.floor(gameTime / 25);
       else num = 1 + Math.floor(gameTime / 40);
+      if (level >= 20) num *= 2;
       for (let i = 0; i < num; i++) spawnEnemy();
     }
     let interval;
@@ -468,7 +472,12 @@
       }
     }
 
-    for (const g of xpGems) {
+    for (let i = xpGems.length - 1; i >= 0; i--) {
+      const g = xpGems[i];
+      if (gameTime - (g.spawnTime ?? 0) > GEM_LIFETIME) {
+        xpGems.splice(i, 1);
+        continue;
+      }
       const dx = player.x - g.x, dy = player.y - g.y;
       const d = Math.hypot(dx, dy) || 1;
       const magnetR = MAGNET_RADIUS * player.magnetScale;
@@ -483,7 +492,7 @@
       g.y += g.vy * dt;
       if (d < player.radius + g.radius + 10) {
         xp += g.value;
-        xpGems.splice(xpGems.indexOf(g), 1);
+        xpGems.splice(i, 1);
       }
     }
 
