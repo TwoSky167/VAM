@@ -261,6 +261,20 @@ body {
 .level-up-option .icon { font-size: 32px; }
 .level-up-option .name { font-weight: 700; color: var(--accent-gold); font-size: 13px; }
 .level-up-option .desc { font-size: 11px; color: var(--text-dim); text-align: center; line-height: 1.3; }
+.level-up-option .choice-num {
+  margin-top: 6px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-gold);
+  color: var(--bg-dark);
+  font-weight: 800;
+  font-size: 14px;
+  border-radius: 50%;
+}
 
 .hidden {
   display: none !important;

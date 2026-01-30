@@ -372,7 +372,7 @@
     const modal = document.getElementById('level-up-modal');
     const container = document.getElementById('level-up-choices');
     container.innerHTML = '';
-    choices.forEach(c => {
+    choices.forEach((c, i) => {
       const opt = document.createElement('div');
       opt.className = 'level-up-option';
       let name, icon, desc;
@@ -393,7 +393,7 @@
         icon = d.icon;
         desc = d.desc;
       }
-      opt.innerHTML = `<span class="icon">${icon}</span><span class="name">${name}</span><span class="desc">${desc}</span>`;
+      opt.innerHTML = `<span class="icon">${icon}</span><span class="name">${name}</span><span class="desc">${desc}</span><span class="choice-num">${i + 1}</span>`;
       opt.onclick = () => {
         if (c.type === 'weapon') addWeapon(c.id);
         else if (c.type === 'weaponLevel') levelUpWeapon(c.id);
@@ -788,6 +788,12 @@
     keys[e.code] = true;
     if (e.code === 'KeyR' && gameState === 'gameover') startGame();
     if (e.repeat) return;
+    if (gameState === 'levelup' && (e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' || e.code === 'Numpad1' || e.code === 'Numpad2' || e.code === 'Numpad3')) {
+      const idx = e.code === 'Digit1' || e.code === 'Numpad1' ? 0 : e.code === 'Digit2' || e.code === 'Numpad2' ? 1 : 2;
+      const opts = document.getElementById('level-up-choices').children;
+      if (opts[idx]) opts[idx].click();
+      return;
+    }
     if ((e.code === 'KeyP' || e.code === 'Escape') && gameState === 'play') {
       gameState = 'paused';
       document.getElementById('pause-overlay').classList.remove('hidden');
